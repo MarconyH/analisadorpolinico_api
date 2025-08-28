@@ -3,7 +3,6 @@ import datetime
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from PIL import Image
-import numpy as np
 import io
 import os
 
@@ -36,6 +35,9 @@ async def analyze(file: UploadFile = File(...)):
     
     # Lê os bytes do arquivo direto
     image_bytes = await file.read()
+
+    if not yolo:
+        yolo = ModelYOLO()
 
     # Passa pro YOLO sem salvar
     result = yolo.analyze(image_bytes)
