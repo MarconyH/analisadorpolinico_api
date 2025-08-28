@@ -8,8 +8,10 @@ import io
 import os
 import tensorflow as tf
 
-app = FastAPI()
+from model.ModelYOLO import ModelYOLO
 
+app = FastAPI()
+yolo = ModelYOLO()  # carrega uma vez na inicialização
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,45 +59,55 @@ def preprocess_image(image: Image.Image, target_size):
 
 
 @app.post("/analyze")
-async def analyze_image(file: UploadFile = File(...)):
-    # Lê a imagem
+async def analyze(file: UploadFile = File(...)):
+    # Lê os bytes do arquivo direto
     image_bytes = await file.read()
 
-    # Salva a imagem para teste
-    # save_path = os.path.join(SAVE_DIR, file.filename)
-    # with open(save_path, "wb") as f:
-    #     f.write(image_bytes)
+    # Passa pro YOLO sem salvar
+    result = yolo.analyze(image_bytes)
+    print(f"results: {result}\n")
+    return {"results": result}
 
-    # Converte para PIL Image
-    image = Image.open(io.BytesIO(image_bytes))
+# @app.post("/analyze")
+# async def analyze_image(file: UploadFile = File(...)):
+#     # Lê a imagem
+#     image_bytes = await file.read()
 
-    # Preprocessa
-    input_array = preprocess_image(image, target_size)
+#     # Salva a imagem para teste
+#     # save_path = os.path.join(SAVE_DIR, file.filename)
+#     # with open(save_path, "wb") as f:
+#     #     f.write(image_bytes)
 
-    # Define o tensor de entrada
-    interpreter.set_tensor(input_details[0]['index'], input_array)
+#     # Converte para PIL Image
+#     image = Image.open(io.BytesIO(image_bytes))
 
-    # Executa inferência
-    interpreter.invoke()
+#     # Preprocessa
+#     input_array = preprocess_image(image, target_size)
 
-    # Obtém o resultado
-    output_data = interpreter.get_tensor(output_details[0]['index'])[
-        0]  # shape: (23,)
+#     # Define o tensor de entrada
+#     interpreter.set_tensor(input_details[0]['index'], input_array)
 
-    # Cria dicionário com classes e suas probabilidades
-    results = {
-        class_name: float(prob)
-        for class_name, prob in zip(class_names, output_data)
-        if prob >= 0.05
-    }
+#     # Executa inferência
+#     interpreter.invoke()
 
-    # Ordena do maior para o menor
-    results = dict(
-        sorted(results.items(), key=lambda item: item[1], reverse=True))
+#     # Obtém o resultado
+#     output_data = interpreter.get_tensor(output_details[0]['index'])[
+#         0]  # shape: (23,)
 
-    print("Resultados da classificação:", results)
+#     # Cria dicionário com classes e suas probabilidades
+#     results = {
+#         class_name: float(prob)
+#         for class_name, prob in zip(class_names, output_data)
+#         if prob >= 0.05
+#     }
 
-    return JSONResponse(content=results)
+#     # Ordena do maior para o menor
+#     results = dict(
+#         sorted(results.items(), key=lambda item: item[1], reverse=True))
+
+#     print("Resultados da classificação:", results)
+
+#     return JSONResponse(content=results)
 
 
 @app.post("/test")
