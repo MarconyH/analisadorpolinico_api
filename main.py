@@ -3,15 +3,13 @@ import datetime
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from PIL import Image
-import numpy as np
 import io
 import os
-import tensorflow as tf
 
 from model.ModelYOLO import ModelYOLO
 
 app = FastAPI()
-yolo = ModelYOLO()  # carrega uma vez na inicialização
+yolo = None  # carrega uma vez na inicialização
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +29,9 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 async def analyze(file: UploadFile = File(...)):
     # Lê os bytes do arquivo direto
     image_bytes = await file.read()
+
+    if not yolo:
+        yolo = ModelYOLO()
 
     # Passa pro YOLO sem salvar
     result = yolo.analyze(image_bytes)
