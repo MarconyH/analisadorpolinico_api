@@ -1,0 +1,42 @@
+description: Ultralytics YOLOv8s-cls model trained on dataset
+author: Ultralytics
+date: '2025-08-28T19:08:09.458140'
+version: 8.3.188
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 1
+task: classify
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: anadenanthera
+  1: arecaceae
+  2: arrabidaea
+  3: cecropia
+  4: chromolaena
+  5: combretum
+  6: croton
+  7: dipteryx
+  8: eucalipto
+  9: faramea
+  10: hyptis
+  11: mabea
+  12: matayba
+  13: mimosa
+  14: myrcia
+  15: protium
+  16: qualea
+  17: schinus
+  18: senegalia
+  19: serjania
+  20: syagrus
+  21: tridax
+  22: urochloa
+args:
+  batch: 1
+  half: false
+  int8: false
+  nms: false
+channels: 3
