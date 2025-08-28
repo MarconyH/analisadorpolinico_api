@@ -7,7 +7,8 @@ import os
 class ModelYOLO:
     def __init__(self):
         model_path = os.path.join(os.path.dirname(__file__), "best.pt")
-        self.model = YOLO(model_path)
+        self.model = YOLO(model_path, device="cpu",
+                          task="classify", verbose=False)
 
     def analyze(self, image_bytes: bytes, save: bool = False, save_path: str = None):
         """
