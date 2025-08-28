@@ -6,12 +6,11 @@ from PIL import Image
 import numpy as np
 import io
 import os
-import tensorflow as tf
 
 from model.ModelYOLO import ModelYOLO
 
 app = FastAPI()
-yolo = ModelYOLO()  # carrega uma vez na inicialização
+yolo = None  # Carrega apenas quando necessário
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,6 +28,12 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 
 @app.post("/analyze")
 async def analyze(file: UploadFile = File(...)):
+    global yolo
+    
+    # Carrega o modelo apenas se necessário
+    if yolo is None:
+        yolo = ModelYOLO()
+    
     # Lê os bytes do arquivo direto
     image_bytes = await file.read()
 
@@ -61,6 +66,19 @@ async def analyze_image_test(file: UploadFile = File(...)):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.datetime.now().isoformat()}
+
+
+@app.post("/clear-memory")
+async def clear_memory():
+    """Endpoint para limpar memória quando necessário"""
+    global yolo
+    if yolo is not None:
+        del yolo
+        yolo = None
+    
+    import gc
+    gc.collect()
+    return {"status": "memory cleared"}
 
 if __name__ == "__main__":
     import uvicorn

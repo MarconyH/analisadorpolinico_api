@@ -7,8 +7,13 @@ import os
 class ModelYOLO:
     def __init__(self):
         model_path = os.path.join(os.path.dirname(__file__), "best.pt")
+        # Otimizações para usar menos memória
         self.model = YOLO(model_path,
-                          task="classify", verbose=False)
+                         task="classify", 
+                         verbose=False)
+        # Força garbage collection após carregar o modelo
+        import gc
+        gc.collect()
 
     def analyze(self, image_bytes: bytes, save: bool = False, save_path: str = None):
         """
